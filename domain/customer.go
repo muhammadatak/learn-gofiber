@@ -3,6 +3,8 @@ package domain
 import (
 	"context"
 	"database/sql"
+
+	"github.com/muhammadatak/learn-gofiber/dto"
 )
 
 type Customer struct {
@@ -19,5 +21,13 @@ type CustomerRepository interface {
 	FindById(ctx context.Context, id string) (Customer, error)
 	Save(ctx context.Context, c *Customer) error
 	Update(ctx context.Context, c *Customer) error
+	Delete(ctx context.Context, id string) error
+}
+
+type CustomerService interface {
+	Index(ctx context.Context) ([]dto.CustomerData, error)
+	Get(ctx context.Context, id string) (dto.CustomerData, error)
+	Create(ctx context.Context, c dto.CreateCustomerRequest) error
+	Update(ctx context.Context, c dto.UpdateCustomerRequest) error
 	Delete(ctx context.Context, id string) error
 }
