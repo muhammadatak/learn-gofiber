@@ -2,9 +2,11 @@ package main
 
 import (
 	"github.com/gofiber/fiber/v3"
+	"github.com/muhammadatak/learn-gofiber/internal/api"
 	"github.com/muhammadatak/learn-gofiber/internal/config"
 	"github.com/muhammadatak/learn-gofiber/internal/connection"
 	"github.com/muhammadatak/learn-gofiber/internal/repository"
+	"github.com/muhammadatak/learn-gofiber/internal/service"
 )
 
 func main() {
@@ -15,5 +17,9 @@ func main() {
 
 	customerRepository := repository.NewCustomer(dbConnection)
 
-	app.Listen(cnf.Server.Host + ":" + cnf.Server.Port)
+	customerService := service.NewCustomer(customerRepository)
+
+	api.NewCustomer(app, customerService)
+
+	_ = app.Listen(cnf.Server.Host + ":" + cnf.Server.Port)
 }
