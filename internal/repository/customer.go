@@ -4,8 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"time"
-
-	"github.com/doug-martin/goqu/v9"
+customerRepository
 	"github.com/muhammadatak/learn-gofiber/domain"
 )
 
