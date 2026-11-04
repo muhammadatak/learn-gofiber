@@ -35,10 +35,16 @@ func main() {
 	userService := service.NewUser(userRepository)
 	authService := service.NewAuth(cnf, userRepository)
 
+	bookRepository := repository.NewBook(dbConnection)
+	bookStockRepository := repository.NewBookStock(dbConnection)
+	bookService := service.NewBook(bookRepository, bookStockRepository)
+
 	api.NewAuth(app, authService)
 	api.NewCustomer(app, jwtMidd, customerService)
 
 	api.NewUser(app, userService)
+
+	api.NewBook(app, bookService)
 
 	_ = app.Listen(cnf.Server.Host + ":" + cnf.Server.Port)
 }

@@ -84,6 +84,7 @@ func (c *customerService) Update(ctx context.Context, data dto.UpdateCustomerReq
 
 	exists.Code = data.Code
 	exists.Name = data.Name
+	exists.UpdatedAt = sql.NullTime{Valid: true, Time: time.Now()}
 
 	err = c.customerRepository.Update(ctx, &exists)
 
