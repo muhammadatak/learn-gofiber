@@ -28,20 +28,22 @@ func main() {
 	})
 
 	customerRepository := repository.NewCustomer(dbConnection)
-
+	chargeRepository := repository.NewCharge(dbConnection)
 	customerService := service.NewCustomer(customerRepository)
 
 	userRepository := repository.NewUser(dbConnection)
 	userService := service.NewUser(userRepository)
 	authService := service.NewAuth(cnf, userRepository)
+	mediaRepository := repository.NewMedia(dbConnection)
+
+	mediaService := service.NewMedia(cnf, mediaRepository)
 
 	bookRepository := repository.NewBook(dbConnection)
 	bookStockRepository := repository.NewBookStock(dbConnection)
-	bookService := service.NewBook(bookRepository, bookStockRepository)
+	bookService := service.NewBook(cnf, bookRepository, bookStockRepository, mediaRepository)
 	bookStockService := service.NewBookStock(bookRepository, bookStockRepository)
-
 	journalRepository := repository.NewJournal(dbConnection)
-	journalService := service.NewJournal(journalRepository, bookRepository, bookStockRepository, customerRepository)
+	journalService := service.NewJournal(journalRepository, bookRepository, bookStockRepository, customerRepository, chargeRepository)
 
 	api.NewAuth(app, authService)
 	api.NewCustomer(app, jwtMidd, customerService)
@@ -51,5 +53,6 @@ func main() {
 	api.NewBook(app, jwtMidd, bookService)
 	api.NewBookStock(app, jwtMidd, bookStockService)
 	api.NewJournal(app, jwtMidd, journalService)
+	api.NewMedia(cnf, app, mediaService, jwtMidd)
 	_ = app.Listen(cnf.Server.Host + ":" + cnf.Server.Port)
 }

@@ -5,7 +5,9 @@ import (
 	"net/http"
 	"time"
 
+	jwtware "github.com/gofiber/contrib/v3/jwt"
 	"github.com/gofiber/fiber/v3"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/muhammadatak/learn-gofiber/domain"
 	"github.com/muhammadatak/learn-gofiber/dto"
 	"github.com/muhammadatak/learn-gofiber/internal/util"
@@ -89,6 +91,19 @@ func (ja journalApi) Return(ctx fiber.Ctx) error {
 		return ctx.Status(http.StatusBadRequest).JSON(dto.CreateResponseErrorData("Validation failed", fails))
 	}
 
+	token := jwtware.FromContext(ctx)
+	if token == nil {
+		return ctx.Status(http.StatusUnauthorized).JSON(dto.CreateResponseError("token tidak valid"))
+	}
+	claim, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return ctx.Status(http.StatusUnauthorized).JSON(dto.CreateResponseError("token tidak valid"))
+	}
+	userId, ok := claim["id"].(string)
+	if !ok {
+		return ctx.Status(http.StatusUnauthorized).JSON(dto.CreateResponseError("token tidak valid"))
+	}
+	req.UserId = userId
 	err := ja.journalService.Return(c, req)
 
 	if err != nil {

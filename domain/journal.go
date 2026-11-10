@@ -3,6 +3,7 @@ package domain
 import (
 	"context"
 	"database/sql"
+	"time"
 
 	"github.com/muhammadatak/learn-gofiber/dto"
 )
@@ -12,6 +13,9 @@ const (
 	JournalStatusCompleted  = "COMPLETED"
 )
 
+// JournalLoanDuration is how long a book may be borrowed before it is due.
+const JournalLoanDuration = 7 * 24 * time.Hour
+
 type Journal struct {
 	Id         string       `db:"id"`
 	BookId     string       `db:"book_id"`
@@ -20,6 +24,7 @@ type Journal struct {
 	Status     string       `db:"status"`
 	BorrowedAt sql.NullTime `db:"borrowed_at"`
 	ReturnedAt sql.NullTime `db:"returned_at"`
+	DueAt      sql.NullTime `db:"due_at"`
 }
 
 type JournalSearch struct {

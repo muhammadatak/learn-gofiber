@@ -16,17 +16,20 @@ type journalService struct {
 	bookRepository      domain.BookRepository
 	bookStockRepository domain.BookStockRepository
 	customerRepository  domain.CustomerRepository
+	chargeRepository    domain.ChargeRepository
 }
 
 func NewJournal(journalRepository domain.JournalRepository,
 	bookRepository domain.BookRepository,
-	bookStockRepository domain.BookStockRepository, customerRepository domain.CustomerRepository) domain.JournalService {
+	bookStockRepository domain.BookStockRepository, customerRepository domain.CustomerRepository, chargeRepository domain.ChargeRepository,
+) domain.JournalService {
 
 	return &journalService{
 		journalRepository:   journalRepository,
 		bookRepository:      bookRepository,
 		bookStockRepository: bookStockRepository,
 		customerRepository:  customerRepository,
+		chargeRepository:    chargeRepository,
 	}
 }
 
@@ -71,6 +74,7 @@ func (j *journalService) Create(ctx context.Context, req dto.CreateJournalReques
 		Status:     domain.JournalStatusInProgress,
 		BorrowedAt: sql.NullTime{Valid: false, Time: time.Now()},
 		ReturnedAt: sql.NullTime{Valid: false, Time: time.Now()},
+		DueAt:      sql.NullTime{Valid: true, Time: time.Now().Add(domain.JournalLoanDuration)},
 	}
 
 	stock.Status = domain.BookStockBorrowed
@@ -143,6 +147,7 @@ func (j *journalService) Index(ctx context.Context, se domain.JournalSearch) ([]
 			Status:     v.Status,
 			BorrowedAt: v.BorrowedAt.Time,
 			ReturnedAt: v.ReturnedAt.Time,
+			DueAt:      v.DueAt.Time,
 		})
 	}
 	return journalData, nil
@@ -180,6 +185,26 @@ func (j *journalService) Return(ctx context.Context, req dto.ReturnJournalReques
 
 	journal.Status = domain.JournalStatusCompleted
 	journal.ReturnedAt = sql.NullTime{Valid: true, Time: time.Now()}
-	return j.journalRepository.Update(ctx, &journal)
+	err = j.journalRepository.Update(ctx, &journal)
+
+	if err != nil {
+		return err
+	}
+
+	hoursLate := time.Now().Sub(journal.DueAt.Time).Hours()
+	if hoursLate >= 24 {
+		daysLate := int(hoursLate / 24)
+		charge := domain.Charge{
+			Id:           uuid.NewString(),
+			JournalId:    journal.Id,
+			DaysLate:     daysLate,
+			DailyLateFee: 5000,
+			Total:        5000 * daysLate,
+			UserId:       req.UserId,
+			CreatedAt:    sql.NullTime{Valid: true, Time: time.Now()},
+		}
+		err = j.chargeRepository.Save(ctx, &charge)
+	}
+	return err
 
 }
