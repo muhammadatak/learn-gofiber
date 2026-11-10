@@ -20,14 +20,14 @@ func NewBookStock(con *sql.DB) domain.BookStockRepository {
 }
 
 func (b *bookStockRepository) FindByBookAndCode(ctx context.Context, id string, code string) (result domain.BookStock, err error) {
-	dataset := b.db.From("book_stocks").Where(goqu.C("id").Eq(id), goqu.C("c0de").Eq(code))
+	dataset := b.db.From("book_stocks").Where(goqu.C("book_id").Eq(id), goqu.C("code").Eq(code))
 	_, err = dataset.ScanStructContext(ctx, &result)
 	return
 }
 
-func (b *bookStockRepository) FindByBookId(ctx context.Context, id string) (result domain.BookStock, err error) {
-	dataset := b.db.From("book_stocks").Where(goqu.C("id").Eq(id), goqu.C("deleted_at").IsNull())
-	_, err = dataset.ScanStructContext(ctx, &result)
+func (b *bookStockRepository) FindByBookId(ctx context.Context, id string) (result []domain.BookStock, err error) {
+	dataset := b.db.From("book_stocks").Where(goqu.C("book_id").Eq(id))
+	err = dataset.ScanStructsContext(ctx, &result)
 	return
 }
 

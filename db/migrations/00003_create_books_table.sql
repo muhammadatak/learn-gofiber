@@ -4,6 +4,7 @@ CREATE TABLE books (
     title       VARCHAR(255) NOT NULL,
     description TEXT,
     isbn        VARCHAR(20)  NOT NULL UNIQUE,
+    cover_id    UUID,
     created_at  TIMESTAMPTZ,
     updated_at  TIMESTAMPTZ,
     deleted_at  TIMESTAMPTZ

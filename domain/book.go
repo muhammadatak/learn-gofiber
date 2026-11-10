@@ -20,6 +20,7 @@ type Book struct {
 type BookRepository interface {
 	FindAll(ctx context.Context) ([]Book, error)
 	FindById(ctx context.Context, id string) (Book, error)
+	FindByIds(ctx context.Context, ids []string) ([]Book, error)
 	Save(ctx context.Context, book *Book) error
 	Update(ctx context.Context, book *Book) error
 	Delete(ctx context.Context, id string) error
@@ -27,7 +28,7 @@ type BookRepository interface {
 
 type BookService interface {
 	Index(ctx context.Context) ([]dto.BookData, error)
-	Get(ctx context.Context, id string) (dto.BookData, error)
+	Get(ctx context.Context, id string) (dto.BookShowData, error)
 	Create(ctx context.Context, book dto.CreateBookRequest) error
 	Update(ctx context.Context, book dto.UpdateBookRequest) error
 	Delete(ctx context.Context, id string) error

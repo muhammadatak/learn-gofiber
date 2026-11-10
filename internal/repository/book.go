@@ -32,6 +32,11 @@ func (b *bookRepository) FindById(ctx context.Context, id string) (result domain
 	_, err = dataset.ScanStructContext(ctx, &result)
 	return
 }
+func (b *bookRepository) FindByIds(ctx context.Context, ids []string) (result []domain.Book, err error) {
+	dataset := b.db.From("books").Where(goqu.C("id").Eq(ids), goqu.C("deleted_at").IsNull())
+	err = dataset.ScanStructsContext(ctx, &result)
+	return
+}
 
 // Save implements [domain.BookRepository].
 func (b *bookRepository) Save(ctx context.Context, book *domain.Book) error {

@@ -3,6 +3,13 @@ package domain
 import (
 	"context"
 	"database/sql"
+
+	"github.com/muhammadatak/learn-gofiber/dto"
+)
+
+const (
+	BookStockAvailable = "AVAILABLE"
+	BookStockBorrowed  = "BORROWED"
 )
 
 type BookStock struct {
@@ -14,10 +21,15 @@ type BookStock struct {
 }
 
 type BookStockRepository interface {
-	FindByBookId(ctx context.Context, id string) (BookStock, error)
+	FindByBookId(ctx context.Context, id string) ([]BookStock, error)
 	FindByBookAndCode(ctx context.Context, id string, code string) (BookStock, error)
 	Save(ctx context.Context, data []BookStock) error
 	Update(ctx context.Context, stock *BookStock) error
 	Delete(ctx context.Context, id string) error
 	DeleteByCodes(ctx context.Context, codes []string) error
+}
+
+type BookStockService interface {
+	Create(ctx context.Context, req dto.CreateBookStockRequest) error
+	Delete(ctx context.Context, req dto.DeleteBookStockRequest) error
 }

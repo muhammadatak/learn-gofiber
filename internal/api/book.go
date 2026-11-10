@@ -15,15 +15,15 @@ type bookApi struct {
 	bookService domain.BookService
 }
 
-func NewBook(app *fiber.App, bookService domain.BookService) {
+func NewBook(app *fiber.App, authMid fiber.Handler, bookService domain.BookService) {
 	ba := bookApi{
 		bookService: bookService,
 	}
-	app.Get("/books", ba.Index)
-	app.Get("/books/:id", ba.Show)
-	app.Post("/books", ba.Create)
-	app.Put("/books/:id", ba.Update)
-	app.Delete("/books/:id", ba.Delete)
+	app.Get("/books", authMid, ba.Index)
+	app.Get("/books/:id", authMid, ba.Show)
+	app.Post("/books", authMid, ba.Create)
+	app.Put("/books/:id", authMid, ba.Update)
+	app.Delete("/books/:id", authMid, ba.Delete)
 }
 
 func (ba bookApi) Index(ctx fiber.Ctx) error {

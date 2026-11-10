@@ -38,13 +38,18 @@ func main() {
 	bookRepository := repository.NewBook(dbConnection)
 	bookStockRepository := repository.NewBookStock(dbConnection)
 	bookService := service.NewBook(bookRepository, bookStockRepository)
+	bookStockService := service.NewBookStock(bookRepository, bookStockRepository)
+
+	journalRepository := repository.NewJournal(dbConnection)
+	journalService := service.NewJournal(journalRepository, bookRepository, bookStockRepository, customerRepository)
 
 	api.NewAuth(app, authService)
 	api.NewCustomer(app, jwtMidd, customerService)
 
 	api.NewUser(app, userService)
 
-	api.NewBook(app, bookService)
-
+	api.NewBook(app, jwtMidd, bookService)
+	api.NewBookStock(app, jwtMidd, bookStockService)
+	api.NewJournal(app, jwtMidd, journalService)
 	_ = app.Listen(cnf.Server.Host + ":" + cnf.Server.Port)
 }

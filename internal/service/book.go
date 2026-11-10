@@ -46,22 +46,37 @@ func (b *bookService) Index(ctx context.Context) ([]dto.BookData, error) {
 }
 
 // Get implements [domain.BookService].
-func (b *bookService) Get(ctx context.Context, id string) (dto.BookData, error) {
+func (b *bookService) Get(ctx context.Context, id string) (dto.BookShowData, error) {
 	book, err := b.bookRepository.FindById(ctx, id)
 
 	if err != nil {
-		return dto.BookData{}, err
+		return dto.BookShowData{}, err
 	}
 
 	if book.Id == "" {
-		return dto.BookData{}, errors.New("book tidak ada")
+		return dto.BookShowData{}, errors.New("book tidak ada")
 	}
 
-	return dto.BookData{
-		Id:          book.Id,
-		Isbn:        book.Isbn,
-		Title:       book.Title,
-		Description: book.Description,
+	stocks, err := b.bookStockRepository.FindByBookId(ctx, book.Id)
+	if err != nil {
+		return dto.BookShowData{}, err
+	}
+
+	stocksData := make([]dto.BookStockData, 0)
+
+	for _, v := range stocks {
+		stocksData = append(stocksData, dto.BookStockData{
+			Code:   v.Code,
+			Status: v.Status,
+		})
+	}
+
+	return dto.BookShowData{
+		Stocks: stocksData,
+		BookData: dto.BookData{Id: book.Id,
+			Isbn:        book.Isbn,
+			Title:       book.Title,
+			Description: book.Description},
 	}, nil
 }
 
